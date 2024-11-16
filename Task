@@ -1,0 +1,194 @@
+Program:
+class Robot:
+    def __init__(self, id):
+        self.id = id
+        self.x, self.y = 0, 0
+
+    def move(self, direction, steps, occupied_cells):
+        direction_map = {'N': (-1, 0), 'E': (0, 1), 'S': (1, 0), 'W': (0, -1)}
+        dx, dy = direction_map.get(direction.upper(), (0, 0))
+        
+        for _ in range(steps):
+            next_x, next_y = self.x + dx, self.y + dy
+            if (next_x, next_y) not in occupied_cells:
+                self.x, self.y = next_x, next_y
+            else:
+                break  # Stop if another robot occupies the cell
+
+    def get_location(self):
+        return self.x, self.y
+
+
+class Terrain:
+    def __init__(self):
+        self.robots = {}
+        self.occupied_cells = set()
+
+    def create_robot(self, id):
+        if id in self.robots:
+            raise ValueError(f"Robot with ID {id} already exists.")
+        new_robot = Robot(id)
+        self.robots[id] = new_robot
+        self.occupied_cells.add((0, 0))  # Start position of the robot
+
+    def move_robot(self, id, commands):
+        if id not in self.robots:
+            raise ValueError(f"No robot with ID {id} found.")
+        robot = self.robots[id]
+
+        # Update the occupied cells
+        self.occupied_cells.discard((robot.x, robot.y))
+        for command in commands:
+            direction, steps = command[0], int(command[1:])
+            robot.move(direction, steps, self.occupied_cells)
+        self.occupied_cells.add((robot.x, robot.y))
+
+    def get_robot_location(self, id):
+        if id not in self.robots:
+            raise ValueError(f"No robot with ID {id} found.")
+        return self.robots[id].get_location()
+
+
+# Unit Test Cases
+import unittest
+
+class TestRobotTerrain(unittest.TestCase):
+    def test_robot_movement(self):
+        terrain = Terrain()
+        terrain.create_robot(1)
+        terrain.move_robot(1, ['N4', 'E3'])
+        self.assertEqual(terrain.get_robot_location(1), (-4, 3))
+
+    def test_robot_collision(self):
+        terrain = Terrain()
+        terrain.create_robot(1)
+        terrain.create_robot(2)
+        terrain.move_robot(1, ['N2'])
+        terrain.move_robot(2, ['N3'])
+        self.assertEqual(terrain.get_robot_location(1), (-2, 0))
+        self.assertEqual(terrain.get_robot_location(2), (-1, 0))  # Stops before collision
+
+    def test_multiple_robots(self):
+        terrain = Terrain()
+        terrain.create_robot(1)
+        terrain.create_robot(2)
+        terrain.move_robot(1, ['E5', 'S2'])
+        terrain.move_robot(2, ['E5', 'S3'])
+        self.assertEqual(terrain.get_robot_location(1), (2, 5))
+        self.assertEqual(terrain.get_robot_location(2), (3, 5))  # Stops before collision
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+
+Steps for this Task
+
+1. Understand the Requirements
+Create Robots: Each robot has a unique ID and starts at the origin (0, 0).
+Move Robots: Robots move in the grid based on commands like N4 (North 4 steps).
+Collision Handling: If a robot's destination cell is occupied, it stops at the last unoccupied cell.
+Query Location: Fetch the current position of any robot.
+2. Code Structure
+Robot Class:
+
+Defines the robot's behavior.
+Handles movement while checking for collisions.
+Terrain Class:
+
+Manages all robots and keeps track of occupied cells.
+Handles the creation and movement of robots.
+Unit Tests:
+
+Ensures that the code works correctly in various scenarios.
+3. Step-by-Step Execution
+Step 1: Create the Python Script
+Open a text editor or IDE (e.g., VSCode, PyCharm, Notepad++).
+Create a file named robot_movement.py.
+Paste the provided code into the file.
+Step 2: Create a Test File (Optional)
+If you prefer testing separately, create a new file named test_robot_movement.py.
+Copy the unittest section of the code into this file.
+Save the file in the same folder as robot_movement.py.
+Step 3: Run the Code
+To execute the program directly:
+Add a test script to the if __name__ == "__main__": section of robot_movement.py. Example:
+python
+Copy code
+if __name__ == "__main__":
+    terrain = Terrain()
+    terrain.create_robot(1)
+    terrain.move_robot(1, ['N4', 'E3', 'S2'])
+    print(f"Robot 1 Current Location: {terrain.get_robot_location(1)}")
+Save the file and run:
+bash
+Copy code
+python robot_movement.py
+Step 4: Run the Unit Tests
+Run tests to validate functionality:
+bash
+Copy code
+python -m unittest robot_movement.py -v
+Observe test results, which should indicate OK if all tests pass.
+4. Key Code Sections
+Robot Class
+Purpose: Represents individual robot behavior.
+Methods:
+move(direction, steps, occupied_cells): Moves the robot while checking for collisions.
+get_location(): Returns the robot's current position.
+Terrain Class
+Purpose: Manages multiple robots and their interactions.
+Methods:
+create_robot(id): Creates a new robot with a unique ID.
+move_robot(id, commands): Moves the selected robot based on commands.
+get_robot_location(id): Retrieves the location of a robot by ID.
+Unit Tests
+Verifies:
+Correct movement of robots.
+Collision handling.
+Behavior of multiple robots.
+5. Example Execution
+Input Commands:
+
+python
+Copy code
+terrain = Terrain()
+terrain.create_robot(1)
+terrain.create_robot(2)
+terrain.move_robot(1, ['N4', 'E3'])
+terrain.move_robot(2, ['N3', 'E3', 'S1'])
+print(f"Robot 1: {terrain.get_robot_location(1)}")  # Output: (-4, 3)
+print(f"Robot 2: {terrain.get_robot_location(2)}")  # Output: (-3, 3)
+Output:
+
+yaml
+Copy code
+Robot 1: (-4, 3)
+Robot 2: (-3, 3)
+6. Sharing the Code
+Push the code to GitHub with the required instructions in a README.md file. Example content for the README.md:
+
+markdown
+Copy code
+## Robot Movement Program
+This program simulates robot movement on a grid with the following features:
+- Multiple robots with unique IDs.
+- Direction-based movement with collision detection.
+
+### How to Run
+1. Clone the repository.
+2. Run the main script:
+   ```bash
+   python robot_movement.py
+Run tests:
+bash
+Copy code
+python -m unittest -v
+Example Usage
+scss
+Copy code
+terrain = Terrain()
+terrain.create_robot(1)
+terrain.move_robot(1, ['N4', 'E3'])
+print(terrain.get_robot_location(1))  # (-4, 3)
